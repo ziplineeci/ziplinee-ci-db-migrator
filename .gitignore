@@ -12,3 +12,5 @@
 *.out
 
 publish/
+
+ziplinee-ci-db-migrator/

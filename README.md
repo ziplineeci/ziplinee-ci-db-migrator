@@ -1,6 +1,6 @@
 # Ziplinee CI 
 
-The `ziplinee-ci-db-migrator` component is part of the Estafette CI system and is responsible for updating the database schema if needed.
+The `ziplinee-ci-db-migrator` component is part of the Ziplinee CI system and is responsible for updating the database schema if needed.
 
 
 ## Ziplinee CI DB Migrator 

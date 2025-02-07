@@ -1,10 +1,9 @@
-# Estafette CI
+# Ziplinee CI 
 
-The `estafette-ci-db-migrator` component is part of the Estafette CI system documented at https://estafette.io.
+The `ziplinee-ci-db-migrator` component is part of the Estafette CI system and is responsible for updating the database schema if needed.
 
-Please file any issues related to Estafette CI at https://github.com/estafette/estafette-ci-central/issues
 
-## Estafette-ci-db-migrator
+## Ziplinee CI DB Migrator 
 
 This component runs as a Kubernetes job to update the database schema if needed.
 
@@ -13,8 +12,8 @@ This component runs as a Kubernetes job to update the database schema if needed.
 To start development run
 
 ```bash
-git clone git@github.com:estafette/estafette-ci-db-migrator.git
-cd estafette-ci-db-migrator
+git clone git@github.com:ziplineeci/ziplinee-ci-db-migrator.git
+cd ziplinee-ci-db-migrator
 ```
 
 To add a new migration script

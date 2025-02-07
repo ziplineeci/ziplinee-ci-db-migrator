@@ -1,0 +1,115 @@
+builder:
+  track: dev
+
+labels:
+  app-group: ziplinee-ci
+  type: service
+  team: ziplinee-team
+  language: golang
+
+version:
+  semver:
+    major: 1
+    minor: 0
+    patch: 0
+
+stages:
+  build:
+    image: golang:1.20-alpine
+    env:
+      CGO_ENABLED: 0
+      GOOS: linux
+      GOGC: off
+    commands:
+    - go test -short ./...
+    - go build -a -installsuffix cgo -ldflags "-X main.appgroup=${ESTAFETTE_LABEL_APP_GROUP} -X main.app=${ESTAFETTE_GIT_NAME} -X main.version=${ESTAFETTE_BUILD_VERSION} -X main.revision=${ESTAFETTE_GIT_REVISION} -X main.branch=${ESTAFETTE_GIT_BRANCH} -X main.buildDate=${ESTAFETTE_BUILD_DATETIME}" -o ./publish/${ESTAFETTE_GIT_NAME} .
+
+  bake:
+    image: extensions/docker:dev
+    action: build
+    repositories:
+    - ziplinee
+    path: ./publish
+    copy:
+    - /etc/ssl/certs/ca-certificates.crt
+    - ./migrations
+
+  check-container:
+    parallelStages:
+      check-efficiency:
+        image: extensions/docker:dev
+        action: dive
+        repositories:
+        - zioplinee
+
+      vulnerability-scan:
+        image: extensions/docker:dev
+        action: trivy
+        repositories:
+        - ziplinee
+
+  test-migration-against-cockroachdb:
+    services:
+    - name: cockroachdb
+      image: cockroachdb/cockroach:v21.1.8
+      env:
+        COCKROACH_SKIP_ENABLING_DIAGNOSTIC_REPORTING: "true"
+      readiness:
+        path: /health?ready=1
+        port: 8080
+        timeoutSeconds: 120
+      commands:
+      - /cockroach/cockroach start-single-node --insecure --advertise-addr ziplinee-ci-db-public
+
+    image: ziplineeci/ziplinee-ci-db-migrator:${ZIPLINEE_BUILD_VERSION}
+    env:
+      DB_HOST: cockroachdb
+      DB_INSECURE: true
+      ZIPLINEE_LOG_FORMAT: console
+
+  test-migration-against-postgres:
+    services:
+    - name: postgres
+      image: postgres:13.3-alpine
+      env:
+        POSTGRES_PASSWORD: abc
+      readinessProbe:
+        httpGet:
+          path: /health?ready=1
+          port: 8080
+        timeoutSeconds: 120
+
+    image: ziplineeci/ziplinee-ci-db-migrator:${ZIPLINEE_BUILD_VERSION}
+    env:
+      DB_HOST: postgres
+      DB_USER: postgres
+      DB_PASSWORD: abc
+      DB_DATABASE: postgres
+      DB_INSECURE: true
+      DB_PORT: 5432
+      DB_ZIPLINEE_LOG_FORMAT: console
+
+  push-to-docker-hub:
+    image: extensions/docker:dev
+    action: push
+    repositories:
+    - ziplineeci
+    tags:
+    - ${ZIPLINEE_BUILD_VERSION_MAJOR}.${ZIPLINEE_BUILD_VERSION_MINOR}
+    - ${ZIPLINEE_BUILD_VERSION_MAJOR}
+    - latest
+
+  tag-revision:
+    image: bitnami/git
+    commands:
+    - git tag ${ZIPLINEE_BUILD_VERSION}
+    - git push origin ${ZIPLINEE_BUILD_VERSION}
+
+#  slack-notify:
+#    image: extensions/slack-build-status:dev
+#    workspace: ziplineeci
+#    channels:
+#    - '#build-status'
+#    when:
+#      status == 'succeeded' ||
+#      status == 'failed'

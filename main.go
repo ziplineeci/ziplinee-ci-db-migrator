@@ -18,7 +18,7 @@ var (
 var (
 	// flags
 	database                 = kingpin.Flag("database", "Database name.").Default("defaultdb").OverrideDefaultFromEnvar("DB_DATABASE").String()
-	host                     = kingpin.Flag("host", "Database host.").Default("estafette-ci-db-public").OverrideDefaultFromEnvar("DB_HOST").String()
+	host                     = kingpin.Flag("host", "Database host.").Default("ziplinee-ci-db-public").OverrideDefaultFromEnvar("DB_HOST").String()
 	insecure                 = kingpin.Flag("insecure", "Insecure connection.").Default("false").OverrideDefaultFromEnvar("DB_INSECURE").Bool()
 	port                     = kingpin.Flag("port", "Database port.").Default("26257").OverrideDefaultFromEnvar("DB_PORT").Int()
 	user                     = kingpin.Flag("user", "Database user.").Default("root").OverrideDefaultFromEnvar("DB_USER").String()

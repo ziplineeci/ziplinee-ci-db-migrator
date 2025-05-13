@@ -10,7 +10,7 @@ require (
 	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/pressly/goose v2.7.0+incompatible
 	github.com/rs/zerolog v1.33.0
-	github.com/ziplineeci/ziplinee-foundation v0.0.1
+	github.com/ziplineeci/ziplinee-foundation v0.0.2
 )
 
 require (
